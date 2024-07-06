@@ -22,11 +22,11 @@ public class Principal {
     private ConvierteDatos conversor = new ConvierteDatos();
 
     //método para mostrar menú
-    public void mostrarMenu(){
+    public void mostrarMenu() {
         System.out.println("Ingresa el nombre de la serie que deseas encontrar: ");
         var nombreSerie = scanner.nextLine();
-        nombreSerie = nombreSerie.replace(" ","+");
-        String url = URL_BASE+nombreSerie+API_KEY;
+        nombreSerie = nombreSerie.replace(" ", "+");
+        String url = URL_BASE + nombreSerie + API_KEY;
         var json = consumoAPI.obtenerDatos(url);
         var datos = conversor.obtenerDatos(json, DatosSerie.class);
         System.out.println(datos);
@@ -37,7 +37,7 @@ public class Principal {
 
         for (int i = 1; i <= datos.totalDeTemporadas(); i++) {
             // para temporadas
-            String url2 = URL_BASE+nombreSerie+"&Season="+i+API_KEY;
+            String url2 = URL_BASE + nombreSerie + "&Season=" + i + API_KEY;
             json = consumoAPI.obtenerDatos(url2);
             var datos2 = conversor.obtenerDatos(json, DatosTemporada.class);
             //agrego a la lista
@@ -58,7 +58,7 @@ public class Principal {
         //temporadas.forEach(t -> t.episodios().forEach(e -> System.out.println(e.titulo())));
 
         //convierto toda la info en lista del tipo DatosEpisodio
-        List<DatosEpisodio> datosEpisodios = temporadas.stream()
+        /*List<DatosEpisodio> datosEpisodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream())
                 .collect(Collectors.toList()); // lista mutable
         // tabien podria se llamar al .toList() directamente pero se crea una lista inmutable
@@ -67,9 +67,13 @@ public class Principal {
         System.out.println("\n***** TOP 5 episodios: ");
         datosEpisodios.stream()
                 .filter(e -> !e.evaluacion().equalsIgnoreCase("N/A"))
+                .peek(e -> System.out.println("primer filtro N/A " + e))
                 .sorted(Comparator.comparing(DatosEpisodio::evaluacion).reversed())
+                .peek(e -> System.out.println("********Sgundo filtro orden(M>n) " + e))
+                .map(e -> e.titulo().toUpperCase())
+                .peek(e -> System.out.println("********Tercer titulo Mayusculas " + e))
                 .limit(5)
-                .forEach(System.out::println);
+                .forEach(System.out::println);*/
 
         // convierto datos a lista de episodios
         List<Episodio> episodios = temporadas.stream()
@@ -77,10 +81,10 @@ public class Principal {
                         .map(d -> new Episodio(t.numero(),d)))
                 .collect(Collectors.toList());
 
-        episodios.forEach(System.out::println);
+        /*episodios.forEach(System.out::println);*/
 
         //busqueda de episodios a partir de algún año
-        System.out.println("Ingresa el año a partir del cual desaes realizar la búsqueda: ");
+        /* System.out.println("Ingresa el año a partir del cual desaes realizar la búsqueda: ");
         var fecha = scanner.nextInt();
         scanner.nextLine(); //para descartar que hayan errores
 
@@ -88,15 +92,48 @@ public class Principal {
         LocalDate fechaBusqueda = LocalDate.of(fecha, 1, 1);
 
         //FORMATEO DE FECHAS
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyyy");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyyy"); */
 
         // operaciones intermedias para realizar búsqueda s/episodios
-        episodios.stream()
+        /*episodios.stream()
                 .filter(f -> f.getFechaLanzamiento() != null && f.getFechaLanzamiento().isAfter(fechaBusqueda))
                 .forEach(r -> System.out.println(
                         String.format("Temporada: " + r.getTemporada() +
                                 " Episodio: " + r.getTitulo() +
                                 " Fecha de Lanzamiento: " + r.getFechaLanzamiento().format(dtf))
-                ));
+                )); */
+
+        // buscar título de Episodio que contenga la palabra...
+        /*System.out.println("ingrese el Titulo que desea encontrar: ");
+        var subsTitulo = scanner.nextLine();
+
+        Optional<Episodio> buscarEpisodio = episodios.stream()
+                .filter(e -> e.getTitulo().toUpperCase().contains(subsTitulo.toUpperCase()))
+                .findFirst();
+        if (buscarEpisodio.isPresent()) {
+            System.out.println("Episodio encontrado " + buscarEpisodio.get());
+        } else {
+            System.out.println("Episodio no encontrado");
+        }*/
+
+        // creo evaluaciones por temporada usando MAP
+        Map<Integer, Double> evaluacionesPorTemporada = episodios.stream()
+                .filter(e -> e.getEvaluacion() > 0.0)
+                .collect(Collectors.groupingBy(Episodio::getTemporada,
+                        Collectors.averagingDouble(Episodio::getEvaluacion)));
+        System.out.println(evaluacionesPorTemporada);
+
+        // agrego clase que proporciona más estadisticas
+        DoubleSummaryStatistics  est = episodios.stream()
+                .filter(e -> e.getEvaluacion() > 0.0)
+                .collect(Collectors.summarizingDouble(Episodio::getEvaluacion));
+        System.out.println(est);
+
+        // para personalizar la salida
+        System.out.println("Media de las evaluaciones: " + est.getAverage());
+        System.out.println("Episodio mejor evaluado: " + est.getMax());
+        System.out.println("Episodio peor evaluado: " + est.getMin());
+
+
     }
 }
