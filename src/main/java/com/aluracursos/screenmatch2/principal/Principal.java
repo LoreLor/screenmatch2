@@ -12,6 +12,7 @@ import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Principal {
     //atributos
@@ -134,6 +135,26 @@ public class Principal {
         System.out.println("Episodio mejor evaluado: " + est.getMax());
         System.out.println("Episodio peor evaluado: " + est.getMin());
 
+        // generador de secuencia de numeros
+        Stream.iterate(0,n -> n+1)
+                .limit(5)
+                .forEach(System.out::println); // salida 1 2 3 4 5
 
+        //transformacion de stream de colecciones en stream de elementos
+        List<List<String>> lista = List.of(
+                List.of("a", "b"),
+                List.of("c", "d")
+        );
+        Stream<String> stream = lista.stream()
+                .flatMap(Collection::stream);
+
+        stream.forEach(System.out::println); //salida,a b c d
+
+        //Reducir streams a un resultado
+        List<Integer> numeros = List.of(1,2,3,4,5);
+        Optional<Integer> resultado = numeros.stream()
+                .reduce(Integer::sum);
+
+        resultado.ifPresent(System.out::println); //salida 15
     }
 }
