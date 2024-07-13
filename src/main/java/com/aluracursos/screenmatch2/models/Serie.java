@@ -1,18 +1,34 @@
 package com.aluracursos.screenmatch2.models;
 
+import jakarta.persistence.*;
+
+import java.util.List;
 import java.util.OptionalDouble;
 
+@Entity
+@Table(name="series")
 public class Serie {
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long id;
+    @Column(unique = true)
     private String titulo;
     private Integer totalDeTemporadas;
     private Double evaluacion;
     private String poster;
-
+    @Enumerated(EnumType.STRING)
     private Categoria genero;
     private String actores;
     private String sinopsis;
+    //@Transient //porque aun no la quiero mapear a la base de datos
+    @OneToMany(mappedBy = "serie")
+    private List<Episodio> episodios;
 
-    //constructor con datos del record DatosSeri
+    //constructor default
+    public Serie() {
+    }
+
+    //constructor con datos del record DatosSerie personalizado
     public Serie(DatosSerie datosSerie){
         this.titulo = datosSerie.titulo();
         this.totalDeTemporadas = datosSerie.totalDeTemporadas();
@@ -20,7 +36,15 @@ public class Serie {
         this.poster = datosSerie.poster();
         this.genero = Categoria.fromString(datosSerie.genero().split(",")[0].trim()); //para que tome el primero
         this.actores = datosSerie.actores();
-        this.sinopsis = datosSerie.sinopsis();
+        this.sinopsis = datosSerie.sinopsis(); //ConsultaChatGPT.obtenerTraduccion(datosSerie.sinopsis());
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getTitulo() {

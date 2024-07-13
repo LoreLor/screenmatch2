@@ -1,6 +1,7 @@
 package com.aluracursos.screenmatch2.principal;
 
 import com.aluracursos.screenmatch2.models.*;
+import com.aluracursos.screenmatch2.repository.SerieRepository;
 import com.aluracursos.screenmatch2.service.ConsumoAPI;
 import com.aluracursos.screenmatch2.service.ConvierteDatos;
 
@@ -19,6 +20,12 @@ public class Principal {
     private final String API_KEY = "&apikey=9886d19c";
     private ConvierteDatos conversor = new ConvierteDatos();
     private List<DatosSerie> datosSerie = new ArrayList<>();
+    private SerieRepository repositorio;
+
+    //constructor de la clase
+    public Principal(SerieRepository repository){
+        this.repositorio = repository;
+    }
 
     //método para mostrar menú
     public void mostrarMenu() {
@@ -63,7 +70,9 @@ public class Principal {
     }
     private void buscarSerieWeb(){
         DatosSerie datos = getDatosSerie();
-        datosSerie.add(datos);
+        //datosSerie.add(datos);
+        Serie serie = new Serie(datos);
+        repositorio.save(serie); //guardo en la tabla
         System.out.println(datos);
     }
     private void buscarEpisodioPorSerie() {
@@ -78,10 +87,10 @@ public class Principal {
     }
 
     private void mostrarSeriesBuscadas() {
-        List<Serie> series = new ArrayList<>();
+        List<Serie> series = repositorio.findAll(); /*new ArrayList<>();
         series = datosSerie.stream()
                         .map(s -> new Serie(s))
-                        .collect(Collectors.toList());
+                        .collect(Collectors.toList()); */
          // agrupo las series según la categoría - género
         series.stream()
                 .sorted(Comparator.comparing(Serie::getGenero))
