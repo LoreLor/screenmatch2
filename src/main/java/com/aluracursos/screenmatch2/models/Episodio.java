@@ -81,6 +81,22 @@ public class Episodio {
         this.fechaLanzamiento = fechaLanzamiento;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Serie getSerie() {
+        return serie;
+    }
+
+    public void setSerie(Serie serie) {
+        this.serie = serie;
+    }
+
     //creo toString pqra que muestre los datos de Principal
 
     @Override

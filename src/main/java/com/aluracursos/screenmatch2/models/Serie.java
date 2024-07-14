@@ -21,7 +21,7 @@ public class Serie {
     private String actores;
     private String sinopsis;
     //@Transient //porque aun no la quiero mapear a la base de datos
-    @OneToMany(mappedBy = "serie")
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios;
 
     //constructor default
@@ -103,15 +103,25 @@ public class Serie {
         this.sinopsis = sinopsis;
     }
 
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(e -> e.setSerie(this)); //p cada espisodio toma el valor de esa serie
+        this.episodios = episodios;
+    }
+
     @Override
     public String toString() {
         return
                 "genero=" + genero + '\'' +
                 "titulo='" + titulo + '\'' +
-                ", totalDeTemporadas=" + totalDeTemporadas +
-                ", evaluacion=" + evaluacion +
+                ", totalDeTemporadas=" + totalDeTemporadas + '\'' +
+                ", evaluacion=" + evaluacion + '\'' +
                 ", poster='" + poster + '\'' +
                 ", actores='" + actores + '\'' +
-                ", sinopsis='" + sinopsis + '\'';
+                ", sinopsis='" + sinopsis + '\'' +
+                ", episodios='" + episodios ;
     }
 }
